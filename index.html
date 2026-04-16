@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Koyu Tema · Kod Önizleme & Tam Ekran (Tıklama Refresh)</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #0b0e14;
+      font-family: 'Segoe UI', 'Inter', system-ui, -apple-system, sans-serif;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      color: #e3e6eb;
+      overflow: hidden;
+    }
+
+    .toolbar {
+      background: #1a1f2b;
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      border-bottom: 1px solid #2a3343;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      flex-shrink: 0;
+      flex-wrap: wrap;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+      background: linear-gradient(135deg, #b1c7ff, #9bb3f0);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      margin-right: auto;
+    }
+
+    .btn {
+      background: #2a3447;
+      border: none;
+      color: #eef2fb;
+      padding: 8px 18px;
+      border-radius: 40px;
+      font-size: 0.95rem;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+      border: 1px solid #3c485e;
+    }
+
+    .btn:hover {
+      background: #3e4b63;
+      border-color: #5f72a0;
+      transform: translateY(-1px);
+    }
+
+    .btn.primary {
+      background: #3f5b9e;
+      border-color: #6d8ae0;
+      color: white;
+    }
+
+    .btn.primary:hover {
+      background: #5270c0;
+    }
+
+    .info-badge {
+      background: #1e2533;
+      border-radius: 30px;
+      padding: 6px 16px;
+      font-size: 0.9rem;
+      color: #b4c2e0;
+      border-left: 3px solid #6d8ae0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .main-panel {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+      padding: 16px;
+      gap: 16px;
+      background: #0f131c;
+    }
+
+    .editor-pane {
+      flex: 1.2;
+      display: flex;
+      flex-direction: column;
+      background: #161c26;
+      border-radius: 20px;
+      border: 1px solid #2a3447;
+      box-shadow: inset 0 2px 5px #00000020, 0 6px 12px #00000040;
+      overflow: hidden;
+    }
+
+    .editor-header {
+      padding: 12px 18px;
+      background: #1e2533;
+      border-bottom: 1px solid #2e3a4e;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .editor-header span {
+      font-weight: 500;
+      color: #b7c5e0;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-size: 0.85rem;
+    }
+
+    .drop-zone {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 8px;
+    }
+
+    textarea {
+      width: 100%;
+      height: 100%;
+      background: #0f151e;
+      border: 1px solid #2e3c52;
+      border-radius: 16px;
+      padding: 18px;
+      font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+      font-size: 14px;
+      line-height: 1.5;
+      color: #d6e2ff;
+      resize: none;
+      outline: none;
+      transition: border 0.2s, box-shadow 0.2s;
+      box-shadow: inset 0 0 0 1px #1f2a3a;
+    }
+
+    textarea:focus {
+      border-color: #6d8ae0;
+      box-shadow: 0 0 0 3px #3f5b9e40, inset 0 0 0 1px #6d8ae0;
+    }
+
+    .drop-message {
+      margin-top: 8px;
+      font-size: 0.8rem;
+      color: #8899bb;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 6px;
+      border-top: 1px dashed #354153;
+    }
+
+    .drag-overlay {
+      border: 2px dashed #6d8ae0 !important;
+      background: #1f2b40 !important;
+    }
+
+    .preview-pane {
+      flex: 1.8;
+      display: flex;
+      flex-direction: column;
+      background: #0c111a;
+      border-radius: 20px;
+      border: 1px solid #2a3447;
+      box-shadow: 0 6px 12px #00000040;
+      overflow: hidden;
+    }
+
+    .preview-header {
+      padding: 10px 18px;
+      background: #1e2533;
+      border-bottom: 1px solid #2e3a4e;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .preview-header span {
+      font-weight: 500;
+      color: #b7c5e0;
+    }
+
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      background: #ffffff;
+      display: block;
+    }
+
+    .recording-note {
+      background: #1b2330;
+      margin: 0 16px 16px 16px;
+      padding: 12px 20px;
+      border-radius: 60px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.9rem;
+      color: #cbd5f0;
+      border: 1px solid #3f506e;
+      box-shadow: 0 4px 10px #00000030;
+      flex-shrink: 0;
+    }
+
+    .recording-note .icon {
+      font-size: 1.8rem;
+    }
+
+    .note-text {
+      flex: 1;
+    }
+
+    .note-text strong {
+      color: #a7befc;
+    }
+
+    #fileInput {
+      display: none;
+    }
+
+    .icon-emoji {
+      font-size: 1.3rem;
+      line-height: 1;
+    }
+
+    @media (max-width: 700px) {
+      .main-panel {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="toolbar">
+  <h1>⚡ Önizleme Lab · Tam Ekran Tıkla→Yenile</h1>
+  <button class="btn" id="uploadBtn" title="HTML dosyası seç">
+    <span class="icon-emoji">📂</span> Dosya Yükle
+  </button>
+  <button class="btn primary" id="fullscreenBtn" title="Sadece önizleme tam ekran olur. Tam ekranda tıklama sayfayı yeniden başlatır.">
+    <span class="icon-emoji">🖥️</span> Tam Ekran (Tıkla-Yenile)
+  </button>
+  <div class="info-badge">
+    <span class="icon-emoji">🎬</span> Kayıt kılavuzu altta
+  </div>
+</div>
+
+<div class="main-panel">
+  <!-- SOL: KOD GİRİŞ / DRAG & DROP -->
+  <div class="editor-pane">
+    <div class="editor-header">
+      <span>📝 HTML / CSS / JS (Yapıştır / Sürükle)</span>
+      <button class="btn" id="clearBtn" style="padding: 4px 14px; font-size:0.85rem;">🗑️ Temizle</button>
+    </div>
+    <div class="drop-zone" id="dropZone">
+      <textarea id="codeArea" placeholder="<!DOCTYPE html> …"><!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { background: #0b0e14; color: #f0f0f0; font-family: system-ui; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
+    .card { background: #1e2a3a; padding: 2rem; border-radius: 30px; box-shadow: 0 20px 40px #00000060; text-align: center; }
+    h1 { background: linear-gradient(145deg, #aac0ff, #6d8ae0); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>✨ Tam Ekran Önizleme</h1>
+    <p>Kodu değiştir, sürükle-bırak ya da yükle.</p>
+    <p style="opacity:0.7; margin-top:20px;">🎯 Tam ekranda herhangi bir yere tıklamak sayfayı yeniden başlatır.</p>
+  </div>
+</body>
+</html></textarea>
+      <div class="drop-message" id="dropMessage">
+        <span class="icon-emoji">📁</span> HTML dosyasını buraya sürükleyin veya yapıştırın
+      </div>
+    </div>
+  </div>
+
+  <!-- SAĞ: ÖNİZLEME (IFRAME) -->
+  <div class="preview-pane">
+    <div class="preview-header">
+      <span>🔍 Canlı Önizleme</span>
+      <button class="btn" id="refreshPreviewBtn" style="padding:4px 14px;" title="Kodu uygula">↻ Yenile</button>
+    </div>
+    <iframe id="previewFrame" sandbox="allow-scripts allow-same-origin allow-forms allow-modals allow-popups" title="Önizleme"></iframe>
+  </div>
+</div>
+
+<!-- EKRAN KAYDI BİLGİ NOTU (manuel yönlendirme) -->
+<div class="recording-note">
+  <div class="icon">🎥</div>
+  <div class="note-text">
+    <strong>📌 Ekran kaydı nasıl alınır?</strong> · 
+    <strong>Windows:</strong> <kbd>Win</kbd>+<kbd>Alt</kbd>+<kbd>R</kbd> (Game Bar) veya OBS · 
+    <strong>Mac:</strong> <kbd>Cmd</kbd>+<kbd>Shift</kbd>+<kbd>5</kbd> · 
+    <strong>Tarayıcı eklentisi</strong> ya da üçüncü parti yazılım (OBS Studio) kullanabilirsiniz.
+  </div>
+  <div class="icon">📋</div>
+</div>
+
+<input type="file" id="fileInput" accept=".html,.htm,text/html">
+
+<script>
+  (function(){
+    "use strict";
+
+    // DOM elementleri
+    const codeArea = document.getElementById('codeArea');
+    const previewFrame = document.getElementById('previewFrame');
+    const fullscreenBtn = document.getElementById('fullscreenBtn');
+    const uploadBtn = document.getElementById('uploadBtn');
+    const fileInput = document.getElementById('fileInput');
+    const clearBtn = document.getElementById('clearBtn');
+    const refreshBtn = document.getElementById('refreshPreviewBtn');
+    const dropZone = document.getElementById('dropZone');
+    const dropMessage = document.getElementById('dropMessage');
+
+    // === ÖNİZLEME GÜNCELLEME ===
+    function updatePreview(htmlContent) {
+      previewFrame.srcdoc = htmlContent;
+    }
+
+    function applyCodeFromTextarea() {
+      const content = codeArea.value;
+      updatePreview(content);
+    }
+
+    // İlk yükleme
+    (function initializePreview() {
+      if (codeArea.value.trim() !== '') {
+        updatePreview(codeArea.value);
+      } else {
+        const defaultContent = `<!DOCTYPE html><html><head><style>body{background:#0b0e14;color:#e3e6eb;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;font-family:system-ui;}</style></head><body><div style="text-align:center"><h1>🌙 Koyu Tema</h1><p>Kodunu yapıştır veya dosya sürükle</p></div></body></html>`;
+        codeArea.value = defaultContent;
+        updatePreview(defaultContent);
+      }
+    })();
+
+    // Textarea değişince anlık güncelle
+    codeArea.addEventListener('input', applyCodeFromTextarea);
+    refreshBtn.addEventListener('click', applyCodeFromTextarea);
+
+    clearBtn.addEventListener('click', function() {
+      const cleanTemplate = `<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><style>body{background:#121826;color:#f0f3fa;padding:2rem;font-family:system-ui;}</style></head>
+<body><h2>🧹 Temiz sayfa</h2><p>Yeni kodunu yaz veya sürükle.</p></body>
+</html>`;
+      codeArea.value = cleanTemplate;
+      updatePreview(cleanTemplate);
+    });
+
+    // === TAM EKRAN (sadece iframe) ===
+    fullscreenBtn.addEventListener('click', function() {
+      if (previewFrame.requestFullscreen) {
+        previewFrame.requestFullscreen().catch(err => {
+          alert('Tam ekran moduna geçilemedi: ' + err.message);
+        });
+      } else {
+        alert('Tarayıcınız tam ekran API desteklemiyor.');
+      }
+    });
+
+    // === DOSYA YÜKLEME (buton + input) ===
+    uploadBtn.addEventListener('click', () => fileInput.click());
+
+    fileInput.addEventListener('change', function(e) {
+      const file = fileInput.files[0];
+      if (!file) return;
+      if (file.type && !file.type.includes('html') && !file.name.match(/\.(html|htm)$/i)) {
+        alert('Lütfen bir HTML dosyası seçin.');
+        fileInput.value = '';
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        codeArea.value = ev.target.result;
+        updatePreview(ev.target.result);
+        fileInput.value = '';
+      };
+      reader.onerror = () => {
+        alert('Dosya okunamadı.');
+        fileInput.value = '';
+      };
+      reader.readAsText(file, 'UTF-8');
+    });
+
+    // === DRAG & DROP ===
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+      dropZone.addEventListener(eventName, preventDefaults, false);
+      document.body.addEventListener(eventName, preventDefaults, false);
+    });
+
+    function preventDefaults(e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+
+    ['dragenter', 'dragover'].forEach(eventName => {
+      dropZone.addEventListener(eventName, () => {
+        dropZone.classList.add('drag-overlay');
+        dropMessage.style.color = '#b7c9ff';
+      });
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+      dropZone.addEventListener(eventName, () => {
+        dropZone.classList.remove('drag-overlay');
+        dropMessage.style.color = '#8899bb';
+      });
+    });
+
+    dropZone.addEventListener('drop', function(e) {
+      const files = e.dataTransfer.files;
+      if (files.length === 0) return;
+      const file = files[0];
+      if (!file.name.match(/\.(html|htm)$/i) && !file.type.includes('html')) {
+        alert('Lütfen bir .html veya .htm dosyası bırakın.');
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        codeArea.value = ev.target.result;
+        updatePreview(ev.target.result);
+      };
+      reader.onerror = () => alert('Dosya okunamadı.');
+      reader.readAsText(file, 'UTF-8');
+    });
+
+    codeArea.addEventListener('dragover', (e) => e.preventDefault());
+    codeArea.addEventListener('drop', function(e) {
+      e.preventDefault();
+      const files = e.dataTransfer.files;
+      if (files.length) {
+        const file = files[0];
+        if (!file.name.match(/\.(html|htm)$/i) && !file.type.includes('html')) {
+          alert('Lütfen HTML dosyası bırakın.');
+          return;
+        }
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          codeArea.value = ev.target.result;
+          updatePreview(ev.target.result);
+        };
+        reader.readAsText(file);
+      }
+    });
+
+    // ========== TAM EKRANDA TIKLAMA İLE REFRESH (SADECE TAM EKRANDA) ==========
+    let iframeClickHandler = null;
+
+    // İframe içeriğine tıklama dinleyicisi ekle (tam ekran için)
+    function attachClickRefreshToIframe() {
+      // Önce eski dinleyiciyi temizle (güvenlik)
+      removeClickRefreshFromIframe();
+
+      try {
+        const iframeDoc = previewFrame.contentDocument || previewFrame.contentWindow?.document;
+        if (!iframeDoc) return;
+
+        // Handler: tıklamayı durdur ve sayfayı yeniden yükle
+        iframeClickHandler = function(e) {
+          // Tıklamanın varsayılan davranışını ve yayılmasını engelle
+          e.preventDefault();
+          e.stopPropagation();
+
+          // İframe içeriğini yeniden yükle (mevcut textarea içeriği ile)
+          // Not: Bu işlem iframe'i sıfırlar, dolayısıyla load olayı tekrar tetiklenir
+          const currentCode = codeArea.value;
+          previewFrame.srcdoc = currentCode;
+
+          // İsteğe bağlı: küçük bir bilgi konsola (görünmez)
+          console.log('🔄 Tam ekran tıklama: önizleme yeniden başlatıldı.');
+        };
+
+        // İframe'in window nesnesine tıklama dinleyicisi ekle (yakalama fazında)
+        const win = previewFrame.contentWindow;
+        if (win) {
+          win.addEventListener('click', iframeClickHandler, true);
+        }
+
+        // Ayrıca document üzerinden de ekleyelim (bazı durumlar için)
+        iframeDoc.addEventListener('click', iframeClickHandler, true);
+      } catch (err) {
+        // Aynı köken politikası hatası olursa sessizce geç
+        console.warn('İframe içeriğine erişilemedi (güvenlik kısıtı). Tıklama refresh çalışmayabilir.');
+      }
+    }
+
+    function removeClickRefreshFromIframe() {
+      try {
+        const win = previewFrame.contentWindow;
+        const iframeDoc = previewFrame.contentDocument || (win && win.document);
+        if (iframeClickHandler) {
+          if (win) {
+            win.removeEventListener('click', iframeClickHandler, true);
+          }
+          if (iframeDoc) {
+            iframeDoc.removeEventListener('click', iframeClickHandler, true);
+          }
+          iframeClickHandler = null;
+        }
+      } catch (e) {}
+    }
+
+    // Tam ekran değişimini izle
+    function handleFullscreenChange() {
+      const isIframeFullscreen = document.fullscreenElement === previewFrame;
+      
+      if (isIframeFullscreen) {
+        // Tam ekran moduna girildi → tıklama refresh'i aktif et
+        attachClickRefreshToIframe();
+      } else {
+        // Tam ekrandan çıkıldı → dinleyiciyi kaldır
+        removeClickRefreshFromIframe();
+      }
+    }
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+    document.addEventListener('mozfullscreenchange', handleFullscreenChange);
+    document.addEventListener('MSFullscreenChange', handleFullscreenChange);
+
+    // İframe her yüklendiğinde (yeni içerik atandığında) eğer tam ekrandaysak dinleyiciyi yeniden ekle
+    previewFrame.addEventListener('load', function() {
+      // Tam ekran modundaysak tıklama dinleyicisini güncelle (çünkü içerik değişti)
+      if (document.fullscreenElement === previewFrame) {
+        // Önce eskiyi kaldır, sonra yeni iframe içeriğine ekle
+        removeClickRefreshFromIframe();
+        attachClickRefreshToIframe();
+      }
+    });
+
+    // Sayfa kapanırken temizlik (opsiyonel)
+    window.addEventListener('beforeunload', function() {
+      removeClickRefreshFromIframe();
+    });
+
+    // Ekran kaydı notu zaten görünür durumda.
+    console.log('✨ Önizleme aracı hazır. Tam ekranda tıklama sayfayı yeniden başlatır.');
+  })();
+</script>
+</body>
+</html>
